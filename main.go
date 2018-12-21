@@ -23,25 +23,6 @@ var (
 )
 
 func main() {
-	// # awsmfa s3 ls 414395
-	// $ awsmfa 434134 s3 ls
-	// $ awsmfa 321654
-
-	// Were no arguments passed in?
-	// Yes -- display help
-
-	// Was there only one argument passed in?
-	// Yes -- Was it a valid token?
-	// 			Yes -- attempt to get session token and save as credentials
-
-	//			No -- error out
-
-	// No -- Was the first argument a valid token?
-	//			Yes -- attempt to get session token. Success?
-	//					Yes -- pass remaining arguments to new shell process spawned from "aws"
-	//					No -- error out
-	//			No -- error out
-
 	numberOfArgumentsPassedIn := len(os.Args) - 1
 
 	if numberOfArgumentsPassedIn == 0 {
@@ -119,8 +100,6 @@ func getSessionToken(session *session.Session, mfaSerialNumber, mfaToken string,
 
 func computeMfaSerialNumber(awsAccountNumber, userName string) string {
 	// Note: should be an ARN
-	// e.g.: arn:aws:iam::120123456789:mfa/josh.is.crazy
-
 	return fmt.Sprintf("arn:aws:iam::%s:mfa/%s", awsAccountNumber, userName)
 }
 
