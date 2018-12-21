@@ -34,8 +34,8 @@ func main() {
 	if numberOfArgumentsPassedIn == 1 {
 		mfaToken := os.Args[1]
 
-		if false == canMfaTokenBeConvertedToPositiveInteger(mfaToken) {
-			fmt.Println("error: expected argument to be MFA token (integer)")
+		if false == isValidMfaTokenValue(mfaToken) {
+			fmt.Fprintf(os.Stderr, "error: expected argument to be MFA token (integer)\n")
 			os.Exit(1)
 		}
 
@@ -45,7 +45,7 @@ func main() {
 		callerIdentity, err := stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 		if err != nil {
-			fmt.Printf("unable to get caller identity: %s\n", err.Error())
+			fmt.Fprintf(os.Stderr, "unable to get caller identity: %s\n", err.Error())
 			os.Exit(1)
 		}
 
@@ -56,7 +56,7 @@ func main() {
 		result, err := getSessionToken(session, mfaSerialNumber, mfaToken, defaultSessionDurationInSeconds)
 
 		if err != nil {
-			fmt.Printf("unable to get session token: %s\n", err.Error())
+			fmt.Fprintf(os.Stderr, "unable to get session token: %s\n", err.Error())
 			os.Exit(1)
 		}
 
@@ -76,7 +76,7 @@ func getUserNameFromCallerIdentity(callerIdentity *sts.GetCallerIdentityOutput) 
 	return strings.Split(*callerIdentity.Arn, separator)[1]
 }
 
-func canMfaTokenBeConvertedToPositiveInteger(mfaToken string) bool {
+func isValidMfaTokenValue(mfaToken string) bool {
 	_, err := strconv.ParseUint(mfaToken, 10, 64)
 
 	if err != nil {
@@ -125,7 +125,7 @@ func backupCredentialsFileAndSaveNewCredentialsToDisk(newCredentialsFileContent 
 		err = os.Rename(pathToCredentialsFile, pathToBackupCredentialsFile)
 
 		if err != nil {
-			fmt.Printf("unable to back up AWS credentials file: %s", err.Error())
+			fmt.Fprintf(os.Stderr, "unable to back up AWS credentials file: %s", err.Error())
 			os.Exit(1)
 		}
 	}
@@ -133,7 +133,7 @@ func backupCredentialsFileAndSaveNewCredentialsToDisk(newCredentialsFileContent 
 	err := ioutil.WriteFile(pathToCredentialsFile, []byte(newCredentialsFileContent), 0600)
 
 	if err != nil {
-		fmt.Printf("unable to save new sesion credentials to AWS credentials file: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "unable to save new sesion credentials to AWS credentials file: %s\n", err.Error())
 		os.Exit(1)
 	}
 }
@@ -142,7 +142,7 @@ func getPathToAwsDirectory() string {
 	u, err := user.Current()
 
 	if err != nil {
-		fmt.Printf("unable to determine current user: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "unable to determine current user: %s\n", err.Error())
 		os.Exit(1)
 	}
 
