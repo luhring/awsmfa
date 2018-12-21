@@ -16,6 +16,12 @@ import (
 
 const defaultSessionDurationInSeconds = 21600 // 6 hours
 
+var (
+	version   = "No version provided"
+	commit    = "No commit provided"
+	buildTime = "No build timestamp provided"
+)
+
 func main() {
 	// # awsmfa s3 ls 414395
 	// $ awsmfa 434134 s3 ls
