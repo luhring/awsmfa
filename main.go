@@ -23,11 +23,13 @@ func main() {
 	}
 
 	if numberOfArgumentsPassedIn == 1 {
-		if os.Args[1] == "--forget" {
-			forgetSessionCredentials()
+		if os.Args[1] == "--restore" || os.Args[1] == "-r" {
+			restorePermanentCredentials()
+			os.Exit(0)
 		}
 
 		handlePersistentAuthenticationProcess()
+		os.Exit(0)
 	}
 }
 
@@ -42,17 +44,19 @@ func displayHelpText() {
 	os.Exit(0)
 }
 
-func forgetSessionCredentials() {
+func restorePermanentCredentials() {
 	if doesCredentialsFileExist() {
 		if doesCredentialsFileDefaultProfileContainPermanentCredentials() {
 			fmt.Println("'default' profile in credentials file already contains non-temporary credentials.")
 			removeCredentialsBackupFileIfItExists()
-			os.Exit(0)
+
+			return
 		}
 
 		if doesCredentialsBackupFileExist() {
 			restoreCredentialsFileFromBackup()
-			os.Exit(0)
+
+			return
 		}
 
 		exitWithFormattedErrorMessage("Unable to find original (non-temporary) credentials!\n")
@@ -60,7 +64,8 @@ func forgetSessionCredentials() {
 
 	if doesCredentialsBackupFileExist() {
 		restoreCredentialsFileFromBackup()
-		os.Exit(0)
+
+		return
 	}
 
 	exitWithFormattedErrorMessage("Unable to find any AWS credentials.\n")
@@ -94,6 +99,4 @@ func handlePersistentAuthenticationProcess() {
 	if willEnvironmentVariablesPreemptUseOfCredentialsFile() {
 		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\n", pathToCredentialsFile)
 	}
-
-	os.Exit(0)
 }
