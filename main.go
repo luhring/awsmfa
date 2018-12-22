@@ -39,7 +39,12 @@ func exitWithFormattedErrorMessage(format string, a ...interface{}) {
 }
 
 func displayHelpText() {
-	const helpText = `usage: awsmfa <mfa-token>`
+	const helpText = `To obtain temporary session credentials from AWS and save to credentials file:
+awsmfa <mfa-token>
+
+To restore original AWS credentials to credentials file:
+awsmfa --restore
+`
 	fmt.Println(helpText)
 	os.Exit(0)
 }
@@ -47,7 +52,7 @@ func displayHelpText() {
 func restorePermanentCredentials() {
 	if doesCredentialsFileExist() {
 		if doesCredentialsFileDefaultProfileContainPermanentCredentials() {
-			fmt.Println("'default' profile in credentials file already contains non-temporary credentials.")
+			fmt.Printf("'default' profile in %s already contains original credentials.\n", getPathToAwsCredentialsFile())
 			removeCredentialsBackupFileIfItExists()
 
 			return
