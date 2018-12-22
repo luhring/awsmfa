@@ -43,16 +43,6 @@ func displayHelpText() {
 }
 
 func forgetSessionCredentials() {
-	//	is there are creds file?
-	//	yes -- perm creds?
-	//		yes -- awesome. delete creds_backup if it exists
-	//		no -- is there a creds_backup file?
-	//			yes -- restore backup
-	//			no -- error, credentials file contains temp creds, couldn't find backup of permanent creds
-	//	no -- is there a creds_backup file?
-	//		yes -- restore backup
-	//		no -- error, credentials file contains temp creds, couldn't find backup of permanent creds
-
 	if doesCredentialsFileExist() {
 		if doesCredentialsFileDefaultProfileContainPermanentCredentials() {
 			fmt.Println("'default' profile in credentials file already contains non-temporary credentials.")
