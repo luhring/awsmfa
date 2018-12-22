@@ -69,9 +69,3 @@ func handlePersistentAuthenticationProcess() {
 
 	os.Exit(0)
 }
-
-func willEnvironmentVariablesPreemptUseOfCredentialsFile() bool {
-	accessKeyIDEnvironmentVariableValue := os.Getenv("AWS_ACCESS_KEY_ID")
-
-	return len(accessKeyIDEnvironmentVariableValue) != 0
-}
