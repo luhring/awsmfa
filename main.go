@@ -23,7 +23,7 @@ func main() {
 	}
 
 	if numberOfArgumentsPassedIn == 1 {
-		handlePersistentAuthenticationAttempt()
+		handlePersistentAuthenticationProcess()
 	}
 }
 
@@ -38,7 +38,7 @@ func displayHelpText() {
 	os.Exit(0)
 }
 
-func handlePersistentAuthenticationAttempt() {
+func handlePersistentAuthenticationProcess() {
 	mfaToken := os.Args[1]
 
 	if false == isValidMfaTokenValue(mfaToken) {
@@ -62,5 +62,16 @@ func handlePersistentAuthenticationAttempt() {
 	}
 
 	fmt.Printf("Authentication successful! Saved new session credentials to %s\n", pathToCredentialsFile)
+
+	if willEnvironmentVariablesPreemptUseOfCredentialsFile() {
+		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\n", pathToCredentialsFile)
+	}
+
 	os.Exit(0)
+}
+
+func willEnvironmentVariablesPreemptUseOfCredentialsFile() bool {
+	accessKeyIDEnvironmentVariableValue := os.Getenv("AWS_ACCESS_KEY_ID")
+
+	return len(accessKeyIDEnvironmentVariableValue) != 0
 }
