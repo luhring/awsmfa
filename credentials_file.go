@@ -61,7 +61,7 @@ func backUpCredentialsFile() {
 		exitWithFormattedErrorMessage(defaultFailureMessageFormat, getPathToAwsCredentialsFile(), err.Error())
 	}
 
-	fmt.Printf("Created backup of original credentials at %s\n", getPathToAwsCredentialsBackupFile())
+	fmt.Printf("Created backup of original credentials at %s.\n", getPathToAwsCredentialsBackupFile())
 }
 
 func restoreCredentialsFileFromBackup() {
@@ -81,7 +81,7 @@ func restoreCredentialsFileFromBackup() {
 		exitWithFormattedErrorMessage(defaultFailureMessageFormat, err.Error())
 	}
 
-	fmt.Printf("Restored credentials file from backup\n")
+	fmt.Printf("Restored original credentials from backup.\n")
 }
 
 func removeCredentialsBackupFile() {
@@ -96,7 +96,7 @@ func removeCredentialsBackupFile() {
 			err.Error(),
 		)
 	} else {
-		fmt.Printf("Removed old backup of credentials file (%s)\n", pathToCredentialsBackupFile)
+		fmt.Printf("Deleted old backup of credentials file.\n")
 	}
 }
 

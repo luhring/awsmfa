@@ -55,7 +55,7 @@ func forgetSessionCredentials() {
 
 	if doesCredentialsFileExist() {
 		if doesCredentialsFileDefaultProfileContainPermanentCredentials() {
-			fmt.Println("'default' profile in credentials file already contains non-temporary credentials")
+			fmt.Println("'default' profile in credentials file already contains non-temporary credentials.")
 			removeCredentialsBackupFileIfItExists()
 			os.Exit(0)
 		}
@@ -73,14 +73,14 @@ func forgetSessionCredentials() {
 		os.Exit(0)
 	}
 
-	exitWithFormattedErrorMessage("Unable to find any AWS credentials\n")
+	exitWithFormattedErrorMessage("Unable to find any AWS credentials.\n")
 }
 
 func handlePersistentAuthenticationProcess() {
 	mfaToken := os.Args[1]
 
 	if false == isValidMfaTokenValue(mfaToken) {
-		exitWithFormattedErrorMessage("Expected argument to be MFA token (integer)\n")
+		exitWithFormattedErrorMessage("Expected argument to be MFA token (integer).\n")
 	}
 
 	prepareCredentialsFileForUse()
@@ -99,7 +99,7 @@ func handlePersistentAuthenticationProcess() {
 		exitWithFormattedErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
 	}
 
-	fmt.Printf("Authentication successful! Saved new session credentials to %s\n", pathToCredentialsFile)
+	fmt.Printf("Authentication successful! Saved new session credentials to %s.\n", pathToCredentialsFile)
 
 	if willEnvironmentVariablesPreemptUseOfCredentialsFile() {
 		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\n", pathToCredentialsFile)
