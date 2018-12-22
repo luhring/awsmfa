@@ -51,22 +51,6 @@ aws_session_token = %s
 `, *credentials.AccessKeyId, *credentials.SecretAccessKey, *credentials.SessionToken)
 }
 
-func backupCredentialsFileAndSaveNewCredentialsToDisk(newCredentialsFileContent string) {
-	pathToCredentialsFile := getPathToAwsCredentialsFile()
-
-	if doesCredentialsFileExist() {
-		backUpCredentialsFile()
-	}
-
-	err := ioutil.WriteFile(pathToCredentialsFile, []byte(newCredentialsFileContent), 0600)
-
-	if err != nil {
-		exitWithErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
-	}
-
-	fmt.Printf("Authentication successful! Saved new session credentials to %s\n", pathToCredentialsFile)
-}
-
 func backUpCredentialsFile() {
 	const defaultFailureMessageFormat = "Unable to back up credentials file (%s): %s\n"
 	credentialsFileBytes, err := ioutil.ReadFile(getPathToAwsCredentialsFile())
