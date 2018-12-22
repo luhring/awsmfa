@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -72,4 +73,10 @@ func assembleMfaSerialNumberFromComponents(awsAccountNumber, userName string) st
 
 func createAwsSession() *session.Session {
 	return session.Must(session.NewSession())
+}
+
+func willEnvironmentVariablesPreemptUseOfCredentialsFile() bool {
+	accessKeyIDEnvironmentVariableValue := os.Getenv("AWS_ACCESS_KEY_ID")
+
+	return len(accessKeyIDEnvironmentVariableValue) != 0
 }
