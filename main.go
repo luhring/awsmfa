@@ -23,11 +23,15 @@ func main() {
 	}
 
 	if numberOfArgumentsPassedIn == 1 {
+		if os.Args[1] == "--forget" {
+			forgetSessionCredentials()
+		}
+
 		handlePersistentAuthenticationProcess()
 	}
 }
 
-func exitWithErrorMessage(format string, a ...interface{}) {
+func exitWithFormattedErrorMessage(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, "Error: "+format, a...)
 	os.Exit(1)
 }
@@ -38,11 +42,45 @@ func displayHelpText() {
 	os.Exit(0)
 }
 
+func forgetSessionCredentials() {
+	//	is there are creds file?
+	//	yes -- perm creds?
+	//		yes -- awesome. delete creds_backup if it exists
+	//		no -- is there a creds_backup file?
+	//			yes -- restore backup
+	//			no -- error, credentials file contains temp creds, couldn't find backup of permanent creds
+	//	no -- is there a creds_backup file?
+	//		yes -- restore backup
+	//		no -- error, credentials file contains temp creds, couldn't find backup of permanent creds
+
+	if doesCredentialsFileExist() {
+		if doesCredentialsFileDefaultProfileContainPermanentCredentials() {
+			fmt.Println("'default' profile in credentials file already contains non-temporary credentials")
+			removeCredentialsBackupFileIfItExists()
+			os.Exit(0)
+		}
+
+		if doesCredentialsBackupFileExist() {
+			restoreCredentialsFileFromBackup()
+			os.Exit(0)
+		}
+
+		exitWithFormattedErrorMessage("Unable to find original (non-temporary) credentials!\n")
+	}
+
+	if doesCredentialsBackupFileExist() {
+		restoreCredentialsFileFromBackup()
+		os.Exit(0)
+	}
+
+	exitWithFormattedErrorMessage("Unable to find any AWS credentials\n")
+}
+
 func handlePersistentAuthenticationProcess() {
 	mfaToken := os.Args[1]
 
 	if false == isValidMfaTokenValue(mfaToken) {
-		exitWithErrorMessage("Expected argument to be MFA token (integer)\n")
+		exitWithFormattedErrorMessage("Expected argument to be MFA token (integer)\n")
 	}
 
 	prepareCredentialsFileForUse()
@@ -58,7 +96,7 @@ func handlePersistentAuthenticationProcess() {
 	err := ioutil.WriteFile(pathToCredentialsFile, []byte(newCredentialsFileContent), 0600)
 
 	if err != nil {
-		exitWithErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
+		exitWithFormattedErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
 	}
 
 	fmt.Printf("Authentication successful! Saved new session credentials to %s\n", pathToCredentialsFile)
