@@ -10,5 +10,5 @@ A tool for enabling AWS CLI operations that require MFA
 
 - ~~Ability to get a session token via default profile~~
 - Ability to use non-default profiles
-- Support for specifying custom session duration
-- Ability to assume a role instead of getting a session token
+- Ability to specify custom session duration
+- Ability to assume a role
