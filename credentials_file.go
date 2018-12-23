@@ -81,7 +81,7 @@ func restoreCredentialsFileFromBackup() {
 		exitWithFormattedErrorMessage(defaultFailureMessageFormat, err.Error())
 	}
 
-	fmt.Printf("Restored original credentials from backup. You can no longer perform actions that require MFA.\n")
+	fmt.Printf("Restored original credentials from backup.\n")
 }
 
 func removeCredentialsBackupFile() {

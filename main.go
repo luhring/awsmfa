@@ -38,9 +38,12 @@ func main() {
 			exitWithFormattedErrorMessage("Unexpected argument(s) passed in. Type 'awsmfa --help' to see correct syntax.\n")
 		}
 
-		handlePersistentAuthenticationProcess()
+		mfaToken := os.Args[1]
+		attemptAuthenticationViaMFA(mfaToken)
 		os.Exit(0)
 	}
+
+	exitWithFormattedErrorMessage("Unexpected argument(s) passed in. Type 'awsmfa --help' to see correct syntax.\n")
 }
 
 func exitWithFormattedErrorMessage(format string, a ...interface{}) {
@@ -86,31 +89,39 @@ func restorePermanentCredentials() {
 
 		if doesCredentialsBackupFileExist() {
 			restoreCredentialsFileFromBackup()
+			fmt.Println("You can no longer perform actions that require MFA.")
 
 			return
 		}
 
-		exitWithFormattedErrorMessage("Unable to find original (non-temporary) credentials!\n")
+		exitWithFormattedErrorMessage(
+			"Unable to find original credentials at %s or at %s.\n",
+			getPathToAwsCredentialsFile(),
+			getPathToAwsCredentialsBackupFile(),
+		)
 	}
 
 	if doesCredentialsBackupFileExist() {
 		restoreCredentialsFileFromBackup()
+		fmt.Println("You can no longer perform actions that require MFA.")
 
 		return
 	}
 
-	exitWithFormattedErrorMessage("Unable to find any AWS credentials.\n")
+	exitWithFormattedErrorMessage(
+		"Unable to find original credentials at %s or at %s.\n",
+		getPathToAwsCredentialsFile(),
+		getPathToAwsCredentialsBackupFile(),
+	)
 }
 
-func handlePersistentAuthenticationProcess() {
-	mfaToken := os.Args[1]
-
+func attemptAuthenticationViaMFA(mfaToken string) {
 	prepareCredentialsFileForUse()
 
 	newCredentials := requestNewTemporaryCredentials(mfaToken, defaultSessionDurationInSeconds)
 	newCredentialsFileContent := generateCredentialsFileContent(newCredentials)
 
-	if doesCredentialsFileExist() {
+	if doesCredentialsFileExist() && doesCredentialsFileDefaultProfileContainPermanentCredentials() {
 		backUpCredentialsFile()
 	}
 
@@ -121,9 +132,13 @@ func handlePersistentAuthenticationProcess() {
 		exitWithFormattedErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
 	}
 
-	fmt.Printf("\nAuthentication successful!\n\nSaved new session credentials to %s. You can now perform actions that require MFA.\n", pathToCredentialsFile)
+	fmt.Printf("\nAuthentication successful!\n\nSaved new session credentials to %s.\n", pathToCredentialsFile)
 
 	if willEnvironmentVariablesPreemptUseOfCredentialsFile() {
-		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\n", pathToCredentialsFile)
+		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\nYou might receive 'Access Denied' errors when performing actions that require MFA until you remove your AWS environment variables.\n", pathToCredentialsFile)
+
+		return
 	}
+
+	fmt.Println("You can now perform actions that require MFA.")
 }
