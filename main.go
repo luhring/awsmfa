@@ -121,7 +121,7 @@ func handlePersistentAuthenticationProcess() {
 		exitWithFormattedErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
 	}
 
-	fmt.Printf("\nAuthentication successful! Saved new session credentials to %s. You can now perform actions that require MFA.\n", pathToCredentialsFile)
+	fmt.Printf("\nAuthentication successful!\n\nSaved new session credentials to %s. You can now perform actions that require MFA.\n", pathToCredentialsFile)
 
 	if willEnvironmentVariablesPreemptUseOfCredentialsFile() {
 		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\n", pathToCredentialsFile)
