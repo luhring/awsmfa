@@ -34,6 +34,10 @@ func main() {
 			os.Exit(0)
 		}
 
+		if false == isValidMfaTokenValue(os.Args[1]) {
+			exitWithFormattedErrorMessage("Unexpected argument(s) passed in. Type 'awsmfa --help' to see correct syntax.\n")
+		}
+
 		handlePersistentAuthenticationProcess()
 		os.Exit(0)
 	}
@@ -100,10 +104,6 @@ func restorePermanentCredentials() {
 
 func handlePersistentAuthenticationProcess() {
 	mfaToken := os.Args[1]
-
-	if false == isValidMfaTokenValue(mfaToken) {
-		exitWithFormattedErrorMessage("Expected argument to be MFA token (integer).\n")
-	}
 
 	prepareCredentialsFileForUse()
 
