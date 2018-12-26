@@ -6,6 +6,16 @@ A tool for enabling AWS CLI operations that require MFA
 [![Go Report Card](https://goreportcard.com/badge/github.com/luhring/awsmfa)](https://goreportcard.com/report/github.com/luhring/awsmfa)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/luhring/awsmfa/blob/master/LICENSE)
 
+## Background
+
+MFA has become an extremely popular and successful security mechanism to defend against situations where passwords or secret keys are unexpectedly exposed to an attacker.
+
+AWS allows IAM policies to specify that the listed permissions are available to a user (or the user's group/role) only when the user has first authenticated with an MFA device. AWS provides more information on this setup in ["Configuring MFA-Protected API Access"](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_configure-api-require.html).
+
+To access the AWS API using local command line tools, while needing to perform actions that require that you authenticate with MFA, you must first obtain temporary credentials via the [GetSessionToken](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetSessionToken.html) or [AssumeRole](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) API methods.
+
+awsmfa makes this process easier for users by providing a simple syntax for providing your MFA device's token code and saving your temporary credentials to disk for use in future commands. awsmfa also makes it easy to discard the temporary credentials and restore your original credentials back to their original location.
+
 ## Usage
 
 Prerequisites for using this tool:
@@ -20,13 +30,13 @@ Prerequisites for using this tool:
 
 `awsmfa [commands] [mfa-token]`
 
+(`mfa-token` must be the currently displayed numeric MFA token from the device you've configured as a virtual MFA device associated with your IAM user.)
+
 ### Commands
 
-`-h`, `--help`: Show this help text
+`-h`, `--help`: Show this help text. _(Don't specify an `mfa-token` with this command.)_
 
-`-r`, `--restore`: Restore original credentials back to AWS credentials file
-
-`mfa-token` must be the currently displayed numeric MFA token from the device you've configured as a virtual MFA device associated with your IAM user.
+`-r`, `--restore`: Restore original credentials back to AWS credentials file. _(Don't specify an `mfa-token` with this command.)_
 
 ### Examples
 
