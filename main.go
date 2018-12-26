@@ -7,7 +7,6 @@ import (
 )
 
 const defaultSessionDurationInSeconds = 21600 // 6 hours
-const nameOfCredentialsBackupFile = "credentials_backup_by_awsmfa"
 
 var (
 	version   = "No version provided"

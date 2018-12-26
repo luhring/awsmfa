@@ -12,6 +12,8 @@ import (
 	"github.com/go-ini/ini"
 )
 
+const nameOfCredentialsBackupFile = "credentials_backup_by_awsmfa"
+
 func prepareCredentialsFileForUse() {
 	if doesCredentialsFileExist() {
 		if doesCredentialsFileDefaultProfileContainPermanentCredentials() { // as opposed to temporary credentials
@@ -95,9 +97,11 @@ func removeCredentialsBackupFile() {
 			pathToCredentialsBackupFile,
 			err.Error(),
 		)
-	} else {
-		fmt.Printf("Deleted old backup of credentials file.\n")
+
+		return
 	}
+
+	fmt.Printf("Deleted old backup of credentials file.\n")
 }
 
 func removeCredentialsBackupFileIfItExists() {
