@@ -12,9 +12,9 @@ MFA has become an extremely popular and successful security mechanism to defend 
 
 AWS allows IAM policies to specify that the listed permissions are available to a user (or the user's group/role) only when the user has first authenticated with an MFA device. AWS provides more information on this setup in ["Configuring MFA-Protected API Access"](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_configure-api-require.html).
 
-To access the AWS API using local command line tools, while needing to perform actions that require that you authenticate with MFA, you must first obtain temporary credentials via the [GetSessionToken](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetSessionToken.html) or [AssumeRole](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) API methods.
+To access the AWS API using local command line tools, while needing to perform actions that require that you authenticate with MFA, you must first obtain temporary access credentials via the [GetSessionToken](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetSessionToken.html) or [AssumeRole](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) API methods. These methods require that you supply several parameters, including your MFA device's serial number and the currently displayed token.
 
-awsmfa makes this process easier for users by providing a simple syntax for providing your MFA device's token code and saving your temporary credentials to disk for use in future commands. awsmfa also makes it easy to discard the temporary credentials and restore your original credentials back to their original location.
+awsmfa makes this process easier for users by providing a simple syntax for providing your MFA device's token code, and it automatically saves your temporary credentials to disk for use in future commands. awsmfa also makes it easy to discard the temporary credentials and restore your original credentials back to their original location.
 
 ## Usage
 
@@ -59,6 +59,13 @@ $ awsmfa --restore
 Restored original credentials from backup.
 You can no longer perform actions that require MFA.
 ```
+
+## Limitations
+
+- **Only compatible with _virtual_ MFA devices.** One way that awsmfa makes the authentication process simpler for users is that it doesn't ask the user for the MFA device serial number. awsmfa accomplishes this by making the assumption that the user is using a **virtual** MFA device, as opposed to [the other types of MFA devices that can be used with AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable.html). awsmfa also assumes that this virtual MFA device's ARN can be derived using the format `arn:aws:iam::<aws-account-number>:mfa/<iam-user-name>`.
+- **Only supports the "default" profile in credentials files.** awsmfa doesn't allow users to specify a profile to use when making the request for temporary credentials. awsmfa also doesn't support saving the obtained temporary credentials to any other place besides the "default" profile in the `credentials` file. This just hasn't been implemented yet, and this can be addressed in a future release.
+- **Session duration for temporary credentials can't be customized (always set to 6 hours).** This just hasn't been implemented yet, and this can be addressed in a future release.
+- **Can't be used to assume a role.** This just hasn't been implemented yet, and this can be addressed in a future release.
 
 ## Road map
 
