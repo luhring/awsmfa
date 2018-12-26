@@ -8,7 +8,7 @@ A tool for enabling AWS CLI operations that require MFA
 
 ## Background
 
-MFA has become an extremely popular and successful security mechanism to defend against situations where passwords or secret keys are unexpectedly exposed to an attacker.
+MFA ([multi-factor authentication](https://en.wikipedia.org/wiki/Multi-factor_authentication)) has become an extremely popular and successful security mechanism to defend against situations where passwords or secret keys are unexpectedly exposed to an attacker.
 
 AWS allows IAM policies to specify that the listed permissions are available to a user (or the user's group/role) only when the user has first authenticated with an MFA device. AWS provides more information on this setup in ["Configuring MFA-Protected API Access"](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_configure-api-require.html).
 
