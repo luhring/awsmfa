@@ -20,6 +20,7 @@ func main() {
 
 	if numberOfArgumentsPassedIn == 0 {
 		displayHelpText()
+		os.Exit(0)
 	}
 
 	if numberOfArgumentsPassedIn == 1 {
@@ -28,9 +29,21 @@ func main() {
 			os.Exit(0)
 		}
 
-		handlePersistentAuthenticationProcess()
+		if os.Args[1] == "--help" || os.Args[1] == "-h" {
+			displayHelpText()
+			os.Exit(0)
+		}
+
+		if false == isValidMfaTokenValue(os.Args[1]) {
+			exitWithFormattedErrorMessage("Unexpected argument(s) passed in. Type 'awsmfa --help' to see correct syntax.\n")
+		}
+
+		mfaToken := os.Args[1]
+		attemptAuthenticationViaMFA(mfaToken)
 		os.Exit(0)
 	}
+
+	exitWithFormattedErrorMessage("Unexpected argument(s) passed in. Type 'awsmfa --help' to see correct syntax.\n")
 }
 
 func exitWithFormattedErrorMessage(format string, a ...interface{}) {
@@ -39,14 +52,31 @@ func exitWithFormattedErrorMessage(format string, a ...interface{}) {
 }
 
 func displayHelpText() {
-	const helpText = `To obtain temporary session credentials from AWS and save to credentials file:
-awsmfa <mfa-token>
+	const helpText = `Syntax: awsmfa [commands] [mfa-token]
 
-To restore original AWS credentials to credentials file:
-awsmfa --restore
+Commands:
+
+-h, --help          Show this help text
+-r, --restore       Restore original credentials back to AWS credentials file
+
+'mfa-token' must be the currently displayed numeric MFA token from the device you've configured as a virtual MFA device associated with your IAM user. In addition, active IAM access credentials must already have been stored in your local 'credentials' file or in the AWS-specific environment variables. For help with enabling a virtual MFA device, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html.
+
+Examples:
+
+To obtain temporary session credentials from AWS and save to credentials file:
+
+$ awsmfa 123456
+[You can now perform AWS actions that require MFA...]
+
+To switch back to using permanent access credentials:
+
+$ awsmfa --restore
+[You can no longer perform AWS actions that require MFA...]
+
+For more information: https://github.com/luhring/awsmfa
+
 `
-	fmt.Println(helpText)
-	os.Exit(0)
+	fmt.Print(helpText)
 }
 
 func restorePermanentCredentials() {
@@ -60,35 +90,39 @@ func restorePermanentCredentials() {
 
 		if doesCredentialsBackupFileExist() {
 			restoreCredentialsFileFromBackup()
+			fmt.Println("You can no longer perform actions that require MFA.")
 
 			return
 		}
 
-		exitWithFormattedErrorMessage("Unable to find original (non-temporary) credentials!\n")
+		exitWithFormattedErrorMessage(
+			"Unable to find original credentials at %s or at %s.\n",
+			getPathToAwsCredentialsFile(),
+			getPathToAwsCredentialsBackupFile(),
+		)
 	}
 
 	if doesCredentialsBackupFileExist() {
 		restoreCredentialsFileFromBackup()
+		fmt.Println("You can no longer perform actions that require MFA.")
 
 		return
 	}
 
-	exitWithFormattedErrorMessage("Unable to find any AWS credentials.\n")
+	exitWithFormattedErrorMessage(
+		"Unable to find original credentials at %s or at %s.\n",
+		getPathToAwsCredentialsFile(),
+		getPathToAwsCredentialsBackupFile(),
+	)
 }
 
-func handlePersistentAuthenticationProcess() {
-	mfaToken := os.Args[1]
-
-	if false == isValidMfaTokenValue(mfaToken) {
-		exitWithFormattedErrorMessage("Expected argument to be MFA token (integer).\n")
-	}
-
+func attemptAuthenticationViaMFA(mfaToken string) {
 	prepareCredentialsFileForUse()
 
 	newCredentials := requestNewTemporaryCredentials(mfaToken, defaultSessionDurationInSeconds)
 	newCredentialsFileContent := generateCredentialsFileContent(newCredentials)
 
-	if doesCredentialsFileExist() {
+	if doesCredentialsFileExist() && doesCredentialsFileDefaultProfileContainPermanentCredentials() {
 		backUpCredentialsFile()
 	}
 
@@ -99,9 +133,13 @@ func handlePersistentAuthenticationProcess() {
 		exitWithFormattedErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
 	}
 
-	fmt.Printf("\nAuthentication successful! Saved new session credentials to %s.\n", pathToCredentialsFile)
+	fmt.Printf("\nAuthentication successful!\n\nSaved new session credentials to %s.\n", pathToCredentialsFile)
 
 	if willEnvironmentVariablesPreemptUseOfCredentialsFile() {
-		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\n", pathToCredentialsFile)
+		fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not the session credentials you just received, which are saved at %s.\n\nYou might receive 'Access Denied' errors when performing actions that require MFA until you remove your AWS environment variables.\n", pathToCredentialsFile)
+
+		return
 	}
+
+	fmt.Println("You can now perform actions that require MFA.")
 }
