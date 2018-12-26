@@ -97,9 +97,11 @@ func removeCredentialsBackupFile() {
 			pathToCredentialsBackupFile,
 			err.Error(),
 		)
-	} else {
-		fmt.Printf("Deleted old backup of credentials file.\n")
+
+		return
 	}
+
+	fmt.Printf("Deleted old backup of credentials file.\n")
 }
 
 func removeCredentialsBackupFileIfItExists() {
