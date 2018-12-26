@@ -12,11 +12,11 @@ import (
 )
 
 func requestNewTemporaryCredentials(mfaToken string, durationInSeconds int64) *sts.Credentials {
-	session := createAwsSession()
-	stsClient := sts.New(session)
+	awsSession := createAwsSession()
+	stsClient := sts.New(awsSession)
 
 	mfaSerialNumber := determineMfaSerialNumber(stsClient)
-	result, err := getSessionToken(session, mfaSerialNumber, mfaToken, durationInSeconds)
+	result, err := getSessionToken(awsSession, mfaSerialNumber, mfaToken, durationInSeconds)
 
 	if err != nil {
 		exitWithFormattedErrorMessage("Authentication failed: %s\n", err.Error())

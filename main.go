@@ -74,8 +74,9 @@ $ awsmfa --restore
 [You can no longer perform AWS actions that require MFA...]
 
 For more information: https://github.com/luhring/awsmfa
+
 `
-	fmt.Println(helpText)
+	fmt.Print(helpText)
 }
 
 func restorePermanentCredentials() {
