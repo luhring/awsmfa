@@ -162,7 +162,6 @@ func doesFileExist(pathToFile string) bool {
 func doesCredentialsFileDefaultProfileContainPermanentCredentials() bool {
 	pathToCredentialsFile := getPathToAwsCredentialsFile()
 	credentialsFileContent, err := ioutil.ReadFile(pathToCredentialsFile)
-	const defaultFailureMessageFormat = "Unable to determine if default profile in credentials file contains permanent credentials: %s\n"
 
 	if err != nil {
 		errProfileCheckForPermanentCredentialsFailed := fmt.Errorf("nable to determine if default profile in credentials file contains permanent credentials: %s", err.Error())
@@ -181,7 +180,9 @@ func doesCredentialsFileDefaultProfileContainPermanentCredentials() bool {
 	return doesProfileContainPermanentCredentials(defaultProfile)
 }
 
-func getDefaultProfileFromCredentialsIniConfiguration(configuration *ini.File) *ini.Section {
+type Profile = ini.Section
+
+func getDefaultProfileFromCredentialsIniConfiguration(configuration *ini.File) *Profile {
 	profiles := configuration.Sections()
 
 	if len(profiles) < 1 {
