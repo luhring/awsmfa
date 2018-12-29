@@ -30,7 +30,7 @@ func determineMfaSerialNumber(stsClient *sts.STS) string {
 	callerIdentity, err := stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 	if err != nil {
-		errUnableToGetCallerIdentity := fmt.Errorf("Unable to get caller identity: %s\n", err.Error())
+		errUnableToGetCallerIdentity := fmt.Errorf("unable to get caller identity: %s", err.Error())
 		exitWithError(errUnableToGetCallerIdentity)
 	}
 

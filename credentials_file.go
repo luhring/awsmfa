@@ -94,7 +94,7 @@ func removeCredentialsBackupFile() {
 	if err != nil {
 		fmt.Fprintf(
 			os.Stderr,
-			"Warning: Unable to remove old backup of credentials file (%s): %s\n",
+			"warning: Unable to remove old backup of credentials file (%s): %s\n",
 			pathToCredentialsBackupFile,
 			err.Error(),
 		)
@@ -164,14 +164,14 @@ func doesCredentialsFileDefaultProfileContainPermanentCredentials() bool {
 	credentialsFileContent, err := ioutil.ReadFile(pathToCredentialsFile)
 
 	if err != nil {
-		errProfileCheckForPermanentCredentialsFailed := fmt.Errorf("nable to determine if default profile in credentials file contains permanent credentials: %s", err.Error())
+		errProfileCheckForPermanentCredentialsFailed := fmt.Errorf("unable to determine if default profile in credentials file contains permanent credentials: %s", err.Error())
 		exitWithError(errProfileCheckForPermanentCredentialsFailed)
 	}
 
 	credentialsConfig, err := ini.Load(credentialsFileContent)
 
 	if err != nil {
-		errProfileCheckForPermanentCredentialsFailed := fmt.Errorf("nable to determine if default profile in credentials file contains permanent credentials: %s", err.Error())
+		errProfileCheckForPermanentCredentialsFailed := fmt.Errorf("unable to determine if default profile in credentials file contains permanent credentials: %s", err.Error())
 		exitWithError(errProfileCheckForPermanentCredentialsFailed)
 	}
 
