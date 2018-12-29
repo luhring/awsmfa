@@ -16,6 +16,7 @@ var (
 
 func main() {
 	numberOfArgumentsPassedIn := len(os.Args) - 1
+	errUnexpectedArguments := fmt.Errorf("unexpected argument(s) passed in, type 'awsmfa --help' to see correct syntax")
 
 	if numberOfArgumentsPassedIn == 0 {
 		displayHelpText()
@@ -34,7 +35,7 @@ func main() {
 		}
 
 		if false == isValidMfaTokenValue(os.Args[1]) {
-			exitWithFormattedErrorMessage("Unexpected argument(s) passed in. Type 'awsmfa --help' to see correct syntax.\n")
+			exitWithError(errUnexpectedArguments)
 		}
 
 		mfaToken := os.Args[1]
@@ -42,11 +43,11 @@ func main() {
 		os.Exit(0)
 	}
 
-	exitWithFormattedErrorMessage("Unexpected argument(s) passed in. Type 'awsmfa --help' to see correct syntax.\n")
+	exitWithError(errUnexpectedArguments)
 }
 
-func exitWithFormattedErrorMessage(format string, a ...interface{}) {
-	fmt.Fprintf(os.Stderr, "Error: "+format, a...)
+func exitWithError(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
 	os.Exit(1)
 }
 
@@ -79,9 +80,14 @@ For more information: https://github.com/luhring/awsmfa
 }
 
 func restorePermanentCredentials() {
+	errNoOriginalCredentials := fmt.Errorf(
+		"unable to find original credentials at %s or at %s",
+		getPathToAwsCredentialsFile(),
+		getPathToAwsCredentialsBackupFile())
+
 	if doesCredentialsFileExist() {
 		if doesCredentialsFileDefaultProfileContainPermanentCredentials() {
-			fmt.Printf("'default' profile in %s already contains original credentials.\n", getPathToAwsCredentialsFile())
+			fmt.Printf("default profile in %s already contains original credentials.\n", getPathToAwsCredentialsFile())
 			removeCredentialsBackupFileIfItExists()
 
 			return
@@ -94,11 +100,7 @@ func restorePermanentCredentials() {
 			return
 		}
 
-		exitWithFormattedErrorMessage(
-			"Unable to find original credentials at %s or at %s.\n",
-			getPathToAwsCredentialsFile(),
-			getPathToAwsCredentialsBackupFile(),
-		)
+		exitWithError(errNoOriginalCredentials)
 	}
 
 	if doesCredentialsBackupFileExist() {
@@ -108,11 +110,7 @@ func restorePermanentCredentials() {
 		return
 	}
 
-	exitWithFormattedErrorMessage(
-		"Unable to find original credentials at %s or at %s.\n",
-		getPathToAwsCredentialsFile(),
-		getPathToAwsCredentialsBackupFile(),
-	)
+	exitWithError(errNoOriginalCredentials)
 }
 
 func attemptAuthenticationViaMFA(mfaToken string) {
@@ -129,7 +127,8 @@ func attemptAuthenticationViaMFA(mfaToken string) {
 	err := ioutil.WriteFile(pathToCredentialsFile, []byte(newCredentialsFileContent), 0600)
 
 	if err != nil {
-		exitWithFormattedErrorMessage("Unable to save new session credentials to %s: %s\n", pathToCredentialsFile, err.Error())
+		errCannotSaveSessionCredentials := fmt.Errorf("unable to save new session credentials to %s: %s", pathToCredentialsFile, err.Error())
+		exitWithError(errCannotSaveSessionCredentials)
 	}
 
 	fmt.Printf("\nAuthentication successful!\n\nSaved new session credentials to %s.\n", pathToCredentialsFile)

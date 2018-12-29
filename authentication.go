@@ -19,7 +19,8 @@ func requestNewTemporaryCredentials(mfaToken string, durationInSeconds int64) *s
 	result, err := getSessionToken(awsSession, mfaSerialNumber, mfaToken, durationInSeconds)
 
 	if err != nil {
-		exitWithFormattedErrorMessage("Authentication failed: %s\n", err.Error())
+		errAuthFailed := fmt.Errorf("authentication failed: %s", err.Error())
+		exitWithError(errAuthFailed)
 	}
 
 	return result.Credentials
@@ -29,7 +30,8 @@ func determineMfaSerialNumber(stsClient *sts.STS) string {
 	callerIdentity, err := stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 	if err != nil {
-		exitWithFormattedErrorMessage("Unable to get caller identity: %s\n", err.Error())
+		errUnableToGetCallerIdentity := fmt.Errorf("Unable to get caller identity: %s\n", err.Error())
+		exitWithError(errUnableToGetCallerIdentity)
 	}
 
 	awsAccountNumber := *callerIdentity.Account

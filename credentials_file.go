@@ -50,37 +50,38 @@ aws_session_token = %s
 }
 
 func backUpCredentialsFile() {
-	const defaultFailureMessageFormat = "Unable to back up credentials file (%s): %s\n"
 	credentialsFileBytes, err := ioutil.ReadFile(getPathToAwsCredentialsFile())
 
 	if err != nil {
-		exitWithFormattedErrorMessage(defaultFailureMessageFormat, getPathToAwsCredentialsFile(), err.Error())
+		errBackupFailed := fmt.Errorf("unable to back up credentials file (%s): %s", getPathToAwsCredentialsFile(), err.Error())
+		exitWithError(errBackupFailed)
 	}
 
 	err = ioutil.WriteFile(getPathToAwsCredentialsBackupFile(), credentialsFileBytes, 0600)
 
 	if err != nil {
-		exitWithFormattedErrorMessage(defaultFailureMessageFormat, getPathToAwsCredentialsFile(), err.Error())
+		errBackupFailed := fmt.Errorf("unable to back up credentials file (%s): %s", getPathToAwsCredentialsFile(), err.Error())
+		exitWithError(errBackupFailed)
 	}
 
 	fmt.Printf("Created backup of original credentials at %s.\n", getPathToAwsCredentialsBackupFile())
 }
 
 func restoreCredentialsFileFromBackup() {
-	const defaultFailureMessageFormat = "Unable to restore AWS credentials file from backup: %s\n"
-
 	if doesCredentialsFileExist() {
 		err := os.Remove(getPathToAwsCredentialsFile())
 
 		if err != nil {
-			exitWithFormattedErrorMessage(defaultFailureMessageFormat, err.Error())
+			errCredentialsRestoreFailed := fmt.Errorf("unable to restore AWS credentials file from backup: %s", err.Error())
+			exitWithError(errCredentialsRestoreFailed)
 		}
 	}
 
 	err := os.Rename(getPathToAwsCredentialsBackupFile(), getPathToAwsCredentialsFile())
 
 	if err != nil {
-		exitWithFormattedErrorMessage(defaultFailureMessageFormat, err.Error())
+		errCredentialsRestoreFailed := fmt.Errorf("unable to restore AWS credentials file from backup: %s", err.Error())
+		exitWithError(errCredentialsRestoreFailed)
 	}
 
 	fmt.Printf("Restored original credentials from backup.\n")
@@ -114,7 +115,8 @@ func getPathToAwsDirectory() string {
 	u, err := user.Current()
 
 	if err != nil {
-		exitWithFormattedErrorMessage("Unable to determine current user: %s\n", err.Error())
+		errCannotDetermineCurrentUser := fmt.Errorf("unable to determine current user: %s", err.Error())
+		exitWithError(errCannotDetermineCurrentUser)
 	}
 
 	pathToHomeDirectory := u.HomeDir
@@ -150,7 +152,8 @@ func doesFileExist(pathToFile string) bool {
 			return false
 		}
 
-		exitWithFormattedErrorMessage("Unable to check if file exists (%s): %s\n", pathToFile, err.Error())
+		errFileExistenceCheckFailed := fmt.Errorf("unable to check if file exists (%s): %s", pathToFile, err.Error())
+		exitWithError(errFileExistenceCheckFailed)
 	}
 
 	return true
@@ -162,13 +165,15 @@ func doesCredentialsFileDefaultProfileContainPermanentCredentials() bool {
 	const defaultFailureMessageFormat = "Unable to determine if default profile in credentials file contains permanent credentials: %s\n"
 
 	if err != nil {
-		exitWithFormattedErrorMessage(defaultFailureMessageFormat, err.Error())
+		errProfileCheckForPermanentCredentialsFailed := fmt.Errorf("nable to determine if default profile in credentials file contains permanent credentials: %s", err.Error())
+		exitWithError(errProfileCheckForPermanentCredentialsFailed)
 	}
 
 	credentialsConfig, err := ini.Load(credentialsFileContent)
 
 	if err != nil {
-		exitWithFormattedErrorMessage(defaultFailureMessageFormat, err.Error())
+		errProfileCheckForPermanentCredentialsFailed := fmt.Errorf("nable to determine if default profile in credentials file contains permanent credentials: %s", err.Error())
+		exitWithError(errProfileCheckForPermanentCredentialsFailed)
 	}
 
 	defaultProfile := getDefaultProfileFromCredentialsIniConfiguration(credentialsConfig)
