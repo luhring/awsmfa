@@ -75,6 +75,9 @@ func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string
 	if err != nil {
 		exitWithError(err)
 	}
+
+	fmt.Println("You can now perform actions that require MFA")
+
 	os.Exit(0)
 }
 
@@ -88,6 +91,8 @@ func restore(fileCoordinator *file_coordinator.Coordinator) {
 	if err != nil {
 		exitWithError(err)
 	}
+
+	fmt.Println("You can no longer perform actions that require MFA")
 
 	os.Exit(0)
 }

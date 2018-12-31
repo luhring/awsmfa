@@ -8,8 +8,8 @@ import (
 )
 
 type Coordinator struct {
-	Env         *environment.Environment
-	ProfileName string
+	Env                 *environment.Environment
+	SelectedProfileName string
 }
 
 func New(env *environment.Environment, selectedProfile string) (*Coordinator, error) {
@@ -63,13 +63,13 @@ func (c *Coordinator) Restore() error {
 			return err
 		}
 
-		if credentialsFile.DoesProfileHavePermanentCredentials(c.ProfileName) {
-			fmt.Printf("'%s' profile already contains permanent credentials\n", c.ProfileName)
+		if credentialsFile.DoesProfileHavePermanentCredentials(c.SelectedProfileName) {
+			fmt.Printf("'%s' profile already contains permanent credentials\n", c.SelectedProfileName)
 
 			return nil
 		}
 
-		// credentials file exists but has temporary credentials -- there's no longer a use for this file
+		// credentials file exists but has temporary credentials, so there's no longer a use for this file
 
 		err = credentialsFile.Delete()
 		if err != nil {
@@ -96,7 +96,6 @@ func (c *Coordinator) Restore() error {
 		}
 
 		fmt.Println("Restored original credentials from backup")
-		fmt.Println("You can no longer perform actions that require MFA")
 
 		return backup.Delete()
 	}
@@ -116,7 +115,7 @@ func (c *Coordinator) RestorePermanentCredentialsIfAppropriate() {
 			return
 		}
 
-		areCredentialsTemporary := false == credentialsFile.DoesProfileHavePermanentCredentials(c.ProfileName)
+		areCredentialsTemporary := false == credentialsFile.DoesProfileHavePermanentCredentials(c.SelectedProfileName)
 		willCredentialsFileBeUsed := false == environment.WillEnvironmentVariablesPreemptUseOfCredentialsFile()
 
 		if areCredentialsTemporary && willCredentialsFileBeUsed && c.Env.DoesHaveCredentialsFileBackup() {
@@ -132,7 +131,7 @@ func (c *Coordinator) BackUpPermanentCredentialsIfPresent() error {
 			return err
 		}
 
-		if credentialsFile.DoesProfileHavePermanentCredentials(c.ProfileName) {
+		if credentialsFile.DoesProfileHavePermanentCredentials(c.SelectedProfileName) {
 			return c.BackUp()
 		}
 	}

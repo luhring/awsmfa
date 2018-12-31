@@ -36,7 +36,7 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 
 	newCredentialsFile, err := credentials_file.NewFromCredentials(
 		newCredentials,
-		a.fileCoordinator.ProfileName,
+		a.fileCoordinator.SelectedProfileName,
 		a.fileCoordinator.Env.PathToCredentialsFile(),
 	)
 
@@ -52,8 +52,6 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 
 		return nil
 	}
-
-	fmt.Println("You can now perform actions that require MFA")
 
 	return nil
 }
