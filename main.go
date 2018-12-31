@@ -76,8 +76,6 @@ func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string
 		exitWithError(err)
 	}
 
-	fmt.Println("You can now perform actions that require MFA")
-
 	os.Exit(0)
 }
 
