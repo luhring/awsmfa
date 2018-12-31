@@ -44,11 +44,6 @@ func main() {
 		}
 
 		mfaToken := os.Args[1]
-		err = authenticator.ValidateMFATokenFormat(mfaToken)
-		if err != nil {
-			exitWithError(err)
-		}
-
 		authenticate(fileCoordinator, mfaToken)
 	}
 
@@ -56,9 +51,14 @@ func main() {
 }
 
 func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string) {
+	err := authenticator.ValidateMFATokenFormat(mfaToken)
+	if err != nil {
+		exitWithError(err)
+	}
+
 	fileCoordinator.RestorePermanentCredentialsIfAppropriate()
 
-	err := fileCoordinator.BackUpPermanentCredentialsIfPresent()
+	err = fileCoordinator.BackUpPermanentCredentialsIfPresent()
 	if err != nil {
 		exitWithError(err)
 	}
