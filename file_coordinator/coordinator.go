@@ -65,7 +65,6 @@ func (c *Coordinator) Restore() error {
 
 		if credentialsFile.DoesProfileHavePermanentCredentials(c.SelectedProfileName) {
 			fmt.Printf("'%s' profile already contains permanent credentials\n", c.SelectedProfileName)
-
 			return nil
 		}
 

@@ -92,8 +92,6 @@ func restore(fileCoordinator *file_coordinator.Coordinator) {
 		exitWithError(err)
 	}
 
-	fmt.Println("You can no longer perform actions that require MFA")
-
 	os.Exit(0)
 }
 
