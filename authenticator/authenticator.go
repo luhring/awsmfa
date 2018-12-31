@@ -1,7 +1,6 @@
 package authenticator
 
 import (
-	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sts"
@@ -10,8 +9,6 @@ import (
 	"github.com/luhring/awsmfa/environment"
 	"github.com/luhring/awsmfa/file_coordinator"
 	"os"
-	"strconv"
-	"strings"
 )
 
 const defaultSessionDurationInSeconds = 21600 // 6 hours
@@ -60,19 +57,6 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 	return nil
 }
 
-func ValidateMFATokenFormat(mfaToken string) error {
-	_, err := strconv.ParseUint(mfaToken, 10, 64)
-	if err != nil {
-		return errors.New("MFA token should be a number")
-	}
-
-	if len(mfaToken) != 6 {
-		return errors.New("MFA token should be six digits long")
-	}
-
-	return nil
-}
-
 func (a *Authenticator) requestNewTemporaryCredentials(mfaToken string, sessionDurationInSeconds int64) (*credentials.Credentials, error) {
 	serialNumber, err := a.computeMFADeviceSerialNumber()
 	if err != nil {
@@ -88,36 +72,6 @@ func (a *Authenticator) requestNewTemporaryCredentials(mfaToken string, sessionD
 	return convertCredentialsFromStsCredentials(result.Credentials), nil
 }
 
-func convertCredentialsFromStsCredentials(input *sts.Credentials) *credentials.Credentials {
-	return &credentials.Credentials{
-		AccessKeyID:     *input.AccessKeyId,
-		SecretAccessKey: *input.SecretAccessKey,
-		SessionToken:    *input.SessionToken,
-	}
-}
-
-func (a *Authenticator) computeMFADeviceSerialNumber() (string, error) {
-	callerIdentity, err := a.stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-
-	if err != nil {
-		return "", nil
-	}
-
-	awsAccountNumber := *callerIdentity.Account
-	userName := getUserNameFromCallerIdentity(callerIdentity)
-
-	return computeARNForVirtualMFADevice(awsAccountNumber, userName), nil
-}
-
-func getUserNameFromCallerIdentity(callerIdentity *sts.GetCallerIdentityOutput) string {
-	const separator = "/"
-	return strings.Split(*callerIdentity.Arn, separator)[1]
-}
-
-func computeARNForVirtualMFADevice(awsAccountNumber, userName string) string {
-	return fmt.Sprintf("arn:aws:iam::%s:mfa/%s", awsAccountNumber, userName)
-}
-
 func (a *Authenticator) getSessionToken(mfaToken, serialNumber string, sessionDurationInSeconds int64) (*sts.GetSessionTokenOutput, error) {
 	input := &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int64(sessionDurationInSeconds),
@@ -126,4 +80,12 @@ func (a *Authenticator) getSessionToken(mfaToken, serialNumber string, sessionDu
 	}
 
 	return a.stsClient.GetSessionToken(input)
+}
+
+func convertCredentialsFromStsCredentials(input *sts.Credentials) *credentials.Credentials {
+	return &credentials.Credentials{
+		AccessKeyID:     *input.AccessKeyId,
+		SecretAccessKey: *input.SecretAccessKey,
+		SessionToken:    *input.SessionToken,
+	}
 }

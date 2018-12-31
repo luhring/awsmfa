@@ -50,6 +50,20 @@ func main() {
 	exitWithError(errUnexpectedArguments)
 }
 
+func help() {
+	displayHelpText()
+	os.Exit(0)
+}
+
+func restore(fileCoordinator *file_coordinator.Coordinator) {
+	err := fileCoordinator.Restore()
+	if err != nil {
+		exitWithError(err)
+	}
+
+	os.Exit(0)
+}
+
 func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string) {
 	err := authenticator.ValidateMFATokenFormat(mfaToken)
 	if err != nil {
@@ -72,20 +86,6 @@ func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string
 	}
 
 	err = auth.AuthenticateUsingMFA(mfaToken)
-	if err != nil {
-		exitWithError(err)
-	}
-
-	os.Exit(0)
-}
-
-func help() {
-	displayHelpText()
-	os.Exit(0)
-}
-
-func restore(fileCoordinator *file_coordinator.Coordinator) {
-	err := fileCoordinator.Restore()
 	if err != nil {
 		exitWithError(err)
 	}

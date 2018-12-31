@@ -19,14 +19,14 @@ func New(accessKeyID, secretAccessKey, sessionToken string) *Credentials {
 }
 
 func (c *Credentials) ArePermanent() bool {
-	return c.havePermanentAccessKeyID() && false == c.HaveSessionToken()
+	return c.hasPermanentAccessKeyID() && false == c.HasSessionToken()
 }
 
-func (c *Credentials) HaveSessionToken() bool {
+func (c *Credentials) HasSessionToken() bool {
 	return c.SessionToken != ""
 }
 
-func (c *Credentials) havePermanentAccessKeyID() bool {
+func (c *Credentials) hasPermanentAccessKeyID() bool {
 	const accessKeyIDPrefix = "AKIA"
 
 	return strings.HasPrefix(c.AccessKeyID, accessKeyIDPrefix)
