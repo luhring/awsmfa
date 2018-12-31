@@ -44,20 +44,18 @@ To obtain temporary session credentials from AWS and save to credentials file:
 
 ```bash
 $ awsmfa 123456
-Created backup of original credentials at /Users/dan/.aws/credentials_backup_by_awsmfa.
+Backed up credentials file to /Users/dan/.aws/credentials_backup_by_awsmfa
+Multi-factor authentication was successful
+Saved new session credentials to credentials file
 
-Authentication successful!
-
-Saved new session credentials to /Users/dan/.aws/credentials.
-You can now perform actions that require MFA.
+You now have access to actions where your IAM policies require 'MultiFactorAuthPresent' 👍
 ```
 
 To switch back to using permanent access credentials:
 
 ```bash
 $ awsmfa --restore
-Restored original credentials from backup.
-You can no longer perform actions that require MFA.
+Restored original credentials from backup
 ```
 
 ## Limitations
