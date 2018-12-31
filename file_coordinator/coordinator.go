@@ -50,7 +50,7 @@ func (c *Coordinator) BackUp() error {
 		return err
 	}
 
-	fmt.Printf("backed up credentials file to %s", newBackup.Filename)
+	fmt.Printf("backed up credentials file to %s\n", newBackup.Filename)
 
 	return nil
 }
@@ -64,7 +64,7 @@ func (c *Coordinator) Restore() error {
 		}
 
 		if credentialsFile.DoesProfileHavePermanentCredentials(c.ProfileName) {
-			fmt.Printf("'%s' profile already contains permanent credentials", c.ProfileName)
+			fmt.Printf("'%s' profile already contains permanent credentials\n", c.ProfileName)
 
 			return nil
 		}
