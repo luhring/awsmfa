@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	auth "github.com/luhring/awsmfa/authenticator"
+	"github.com/luhring/awsmfa/authenticator"
 	"github.com/luhring/awsmfa/environment"
 	"github.com/luhring/awsmfa/file_coordinator"
 	"os"
@@ -44,7 +44,7 @@ func main() {
 		}
 
 		mfaToken := os.Args[1]
-		err = auth.ValidateMFATokenFormat(mfaToken)
+		err = authenticator.ValidateMFATokenFormat(mfaToken)
 		if err != nil {
 			exitWithError(err)
 		}
@@ -56,6 +56,8 @@ func main() {
 }
 
 func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string) {
+	fileCoordinator.RestorePermanentCredentialsIfAppropriate()
+
 	err := fileCoordinator.BackUpPermanentCredentialsIfPresent()
 	if err != nil {
 		exitWithError(err)
@@ -64,12 +66,12 @@ func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string
 	awsSession := session.Must(session.NewSession())
 	stsClient := sts.New(awsSession)
 
-	authenticator, err := auth.New(stsClient, fileCoordinator)
+	auth, err := authenticator.New(stsClient, fileCoordinator)
 	if err != nil {
 		exitWithError(err)
 	}
 
-	err = authenticator.AuthenticateUsingMFA(mfaToken)
+	err = auth.AuthenticateUsingMFA(mfaToken)
 	if err != nil {
 		exitWithError(err)
 	}

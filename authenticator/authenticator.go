@@ -45,7 +45,7 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 		return err
 	}
 
-	fmt.Print("\nAuthentication successful!\n\nSaved new session credentials to credentials file.\n")
+	fmt.Print("\nAuthentication successful\n\nSaved new session credentials to credentials file\n")
 
 	if environment.WillEnvironmentVariablesPreemptUseOfCredentialsFile() {
 		_, _ = fmt.Fprintf(os.Stderr, "\nWarning: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS CLI tools will use the credentials from your environment variables and not from your credentials file, which is where we just saved your new session credentials.\n\nYou might receive 'Access Denied' errors when performing actions that require MFA until you remove your AWS environment variables.\n")
@@ -53,7 +53,7 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 		return nil
 	}
 
-	fmt.Println("You can now perform actions that require MFA.")
+	fmt.Println("You can now perform actions that require MFA")
 
 	return nil
 }

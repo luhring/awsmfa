@@ -50,7 +50,7 @@ func (c *Coordinator) BackUp() error {
 		return err
 	}
 
-	fmt.Printf("backed up credentials file to %s\n", newBackup.Filename)
+	fmt.Printf("Backed up credentials file to %s\n", newBackup.Filename)
 
 	return nil
 }
@@ -95,7 +95,8 @@ func (c *Coordinator) Restore() error {
 			return err
 		}
 
-		fmt.Println("You can no longer perform actions that require MFA.")
+		fmt.Println("Restored original credentials from backup")
+		fmt.Println("You can no longer perform actions that require MFA")
 
 		return backup.Delete()
 	}
