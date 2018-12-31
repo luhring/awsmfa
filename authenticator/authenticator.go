@@ -34,6 +34,8 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 		return err
 	}
 
+	fmt.Println("Multi-factor authentication was successful")
+
 	newCredentialsFile, err := credentials_file.NewFromCredentials(
 		newCredentials,
 		a.fileCoordinator.SelectedProfileName,
@@ -45,13 +47,15 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 		return err
 	}
 
-	fmt.Print("\nAuthentication successful 👍\n\nSaved new session credentials to credentials file\n")
+	fmt.Println("Saved new session credentials to credentials file")
 
 	if environment.WillEnvironmentVariablesPreemptUseOfCredentialsFile() {
-		_, _ = fmt.Fprintf(os.Stderr, "\nWARNING: Because you currently have the environment variable 'AWS_ACCESS_KEY_ID' set, most AWS tools will use the credentials from your environment variables and not from your credentials file, which is where we just saved your new session credentials.\n\nYou might receive 'Access Denied' errors when performing actions that require MFA until you remove your AWS environment variables.\n")
+		_, _ = fmt.Fprintf(os.Stderr, "\nWARNING: Because you have the environment variable '%s' set, most AWS tools will use the credentials from your environment variables and not from your credentials file, which is where we just saved your new session credentials.\n\nYou might receive 'Access Denied' errors when performing actions that require MFA until you remove your AWS environment variables.\n", environment.NameOfVariableForAccessKeyID)
 
 		return nil
 	}
+
+	fmt.Print("\nYou now have access to actions where your IAM policies require 'MultiFactorAuthPresent' 👍\n")
 
 	return nil
 }

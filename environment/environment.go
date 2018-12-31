@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	nameOfVariableForAccessKeyID = "AWS_ACCESS_KEY_ID"
+	NameOfVariableForAccessKeyID = "AWS_ACCESS_KEY_ID"
 	nameOfCredentialsFile        = "credentials"
 	nameOfCredentialsFileBackup  = "credentials_backup_by_awsmfa"
 	nameOfAwsDirectory           = ".aws"
@@ -39,7 +39,7 @@ func (e *Environment) DoesHaveCredentialsFileBackup() bool {
 }
 
 func WillEnvironmentVariablesPreemptUseOfCredentialsFile() bool {
-	accessKeyID := os.Getenv(nameOfVariableForAccessKeyID)
+	accessKeyID := os.Getenv(NameOfVariableForAccessKeyID)
 
 	return len(accessKeyID) != 0
 }
