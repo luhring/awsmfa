@@ -29,6 +29,10 @@ func main() {
 	}
 
 	if numberOfArgumentsPassedIn == 1 {
+		if os.Args[1] == "--help" || os.Args[1] == "-h" {
+			help()
+		}
+
 		env := environment.MustInit()
 		fileCoordinator, err := file_coordinator.New(env, profileName)
 		if err != nil {
@@ -36,43 +40,54 @@ func main() {
 		}
 
 		if os.Args[1] == "--restore" || os.Args[1] == "-r" {
-			err := fileCoordinator.Restore()
-
-			if err != nil {
-				exitWithError(err)
-			}
-
-			os.Exit(0)
-		}
-
-		if os.Args[1] == "--help" || os.Args[1] == "-h" {
-			displayHelpText()
-			os.Exit(0)
-		}
-
-		err = fileCoordinator.BackUpPermanentCredentialsIfPresent()
-		if err != nil {
-			exitWithError(err)
-		}
-
-		awsSession := session.Must(session.NewSession())
-		stsClient := sts.New(awsSession)
-
-		authenticator, err := auth.New(stsClient, fileCoordinator)
-		if err != nil {
-			exitWithError(err)
+			restore(fileCoordinator)
 		}
 
 		mfaToken := os.Args[1]
-		err = authenticator.AuthenticateUsingMFA(mfaToken)
+		err = auth.ValidateMFATokenFormat(mfaToken)
 		if err != nil {
 			exitWithError(err)
 		}
 
-		os.Exit(0)
+		authenticate(fileCoordinator, mfaToken)
 	}
 
 	exitWithError(errUnexpectedArguments)
+}
+
+func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string) {
+	err := fileCoordinator.BackUpPermanentCredentialsIfPresent()
+	if err != nil {
+		exitWithError(err)
+	}
+
+	awsSession := session.Must(session.NewSession())
+	stsClient := sts.New(awsSession)
+
+	authenticator, err := auth.New(stsClient, fileCoordinator)
+	if err != nil {
+		exitWithError(err)
+	}
+
+	err = authenticator.AuthenticateUsingMFA(mfaToken)
+	if err != nil {
+		exitWithError(err)
+	}
+	os.Exit(0)
+}
+
+func help() {
+	displayHelpText()
+	os.Exit(0)
+}
+
+func restore(fileCoordinator *file_coordinator.Coordinator) {
+	err := fileCoordinator.Restore()
+	if err != nil {
+		exitWithError(err)
+	}
+
+	os.Exit(0)
 }
 
 func exitWithError(err error) {

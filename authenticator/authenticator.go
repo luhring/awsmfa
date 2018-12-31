@@ -1,6 +1,7 @@
 package authenticator
 
 import (
+	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sts"
@@ -9,6 +10,7 @@ import (
 	"github.com/luhring/awsmfa/environment"
 	"github.com/luhring/awsmfa/file_coordinator"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -52,6 +54,19 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 	}
 
 	fmt.Println("You can now perform actions that require MFA.")
+
+	return nil
+}
+
+func ValidateMFATokenFormat(mfaToken string) error {
+	_, err := strconv.ParseUint(mfaToken, 10, 64)
+	if err != nil {
+		return errors.New("MFA token should be a number")
+	}
+
+	if len(mfaToken) != 6 {
+		return errors.New("MFA token should be six digits long")
+	}
 
 	return nil
 }
