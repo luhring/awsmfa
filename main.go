@@ -67,7 +67,7 @@ func restore(fileCoordinator *file_coordinator.Coordinator) {
 func authenticate(fileCoordinator *file_coordinator.Coordinator, mfaToken string) {
 	err := authenticator.ValidateMFATokenFormat(mfaToken)
 	if err != nil {
-		exitWithError(err)
+		exitWithError(fmt.Errorf("unexpected argument passed in (%s)", err.Error()))
 	}
 
 	fileCoordinator.RestorePermanentCredentialsIfAppropriate()
