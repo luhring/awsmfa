@@ -69,7 +69,11 @@ func (a *Authenticator) requestNewTemporaryCredentials(mfaToken string, sessionD
 		return nil, err
 	}
 
-	return convertCredentialsFromStsCredentials(result.Credentials), nil
+	return credentials.New(
+		*result.Credentials.AccessKeyId,
+		*result.Credentials.SecretAccessKey,
+		*result.Credentials.SessionToken,
+	), nil
 }
 
 func (a *Authenticator) getSessionToken(mfaToken, serialNumber string, sessionDurationInSeconds int64) (*sts.GetSessionTokenOutput, error) {
@@ -80,12 +84,4 @@ func (a *Authenticator) getSessionToken(mfaToken, serialNumber string, sessionDu
 	}
 
 	return a.stsClient.GetSessionToken(input)
-}
-
-func convertCredentialsFromStsCredentials(input *sts.Credentials) *credentials.Credentials {
-	return &credentials.Credentials{
-		AccessKeyID:     *input.AccessKeyId,
-		SecretAccessKey: *input.SecretAccessKey,
-		SessionToken:    *input.SessionToken,
-	}
 }
