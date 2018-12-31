@@ -38,6 +38,9 @@ func (a *Authenticator) AuthenticateUsingMFA(mfaToken string) error {
 		a.fileCoordinator.SelectedProfileName,
 		a.fileCoordinator.Env.PathToCredentialsFile(),
 	)
+	if err != nil {
+		return err
+	}
 
 	err = newCredentialsFile.Save()
 	if err != nil {

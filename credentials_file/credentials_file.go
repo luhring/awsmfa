@@ -42,19 +42,16 @@ func NewFromCredentials(c *credentials.Credentials, profileName, filename string
 	configuration := ini.Empty()
 
 	profile, err := configuration.NewSection(profileName)
-
 	if err != nil {
 		return nil, err
 	}
 
 	err = createNewKeyInProfile(profile, keyNameForAccessKeyID, c.AccessKeyID)
-
 	if err != nil {
 		return nil, err
 	}
 
 	err = createNewKeyInProfile(profile, keyNameForSecretAccessKey, c.SecretAccessKey)
-
 	if err != nil {
 		return nil, err
 	}
