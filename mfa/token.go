@@ -1,4 +1,4 @@
-package authenticator
+package mfa
 
 import (
 	"errors"
@@ -10,13 +10,18 @@ const (
 	ErrMFATokenIncorrectLength = "MFA token should be six digits long"
 )
 
-func ValidateMFATokenFormat(mfaToken string) error {
-	_, err := strconv.ParseUint(mfaToken, 10, 64)
+func newMFAToken(tokenStr string) (token, error) {
+	mfaToken := token(tokenStr)
+	return mfaToken, mfaToken.Validate()
+}
+
+func (token token) Validate() error {
+	_, err := strconv.ParseUint(string(token), 10, 64)
 	if err != nil {
 		return errors.New(ErrMFATokenNotANumber)
 	}
 
-	if len(mfaToken) != 6 {
+	if len(string(token)) != 6 {
 		return errors.New(ErrMFATokenIncorrectLength)
 	}
 
